@@ -21,6 +21,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'd2%mxvbshq_vs#5h&9e_39iml4i#(uo&%@jfifokf&@$f*0c8-'
+AUTH_USER_MODEL = 'account.Account'
+PASSWORD_MIN = 4
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,19 +39,35 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'account'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'tmb_api.middleware.RequestMiddleware',
+    # 'tmb_api.middleware.LoggingMiddleware',
+
+    'django.middleware.security.SecurityMiddleware',
 ]
 
+SWAGGER_SETTINGS = {
+    'IS_ENABLE': True,
+    'SHOW_REQUEST_HEADERS': True,
+    'IS_SUPERUSER': True,
+    'VALIDATOR_URL': None,
+}
+
 ROOT_URLCONF = 'tmb_api.urls'
+
+WSGI_APPLICATION = 'conicle.wsgi.application'
 
 TEMPLATES = [
     {
@@ -75,8 +93,15 @@ WSGI_APPLICATION = 'tmb_api.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'tmb_test',
+        'USER': 'root',
+        'PASSWORD': 'password',     # your mariadb password
+        'TEST': {
+            'NAME': 'hrd_test',
+        },
+        'HOST': '127.0.0.1',
+        'PORT': '3306'
     }
 }
 
@@ -105,7 +130,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Bangkok'
 
 USE_I18N = True
 
