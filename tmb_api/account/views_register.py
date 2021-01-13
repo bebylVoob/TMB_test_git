@@ -2,6 +2,7 @@ import json
 import pytz
 import datetime
 
+from Crypto.Cipher import AES
 from account.models import Account, MemberType
 from account.response import Response
 from account.encryption import SECRET_KEY
@@ -47,13 +48,13 @@ class RegisterSerializer(serializers.Serializer):
     password = serializers.CharField(required=False)
     confirm_password = serializers.CharField(required=False)
     email = serializers.CharField(max_length=255, required=False)
-    salary = serializers.IntegerField(max_length=64, required=True)
+    salary = serializers.CharField(max_length=255, required=True)
     title = serializers.CharField(max_length=255, required=False, allow_blank=True)
     first_name = serializers.CharField(max_length=120, required=False, allow_blank=True)
     middle_name = serializers.CharField(max_length=120, required=False, allow_blank=True)
     last_name = serializers.CharField(max_length=120, required=False, allow_blank=True)
     id_card = serializers.CharField(max_length=255, required=False, allow_blank=True)
-    phone = serializers.CharField(max_length=64, required=False, allow_blank=True)
+    phone = serializers.CharField(max_length=64, required=True)
 
 
 def register(request, data, is_web):
@@ -137,7 +138,9 @@ def register(request, data, is_web):
     tz = pytz.timezone('Asia/Bangkok')
     str_datetime_now = datetime.datetime.now(tz).strftime('%Y%m%d')
     code = str_datetime_now + phone[-4:] if phone else str_datetime_now+'0000'
-    id_card = AESCipher(SECRET_KEY).encrypt(data.get('id_card').strip())
+
+    id_card = (data.get('id_card', ''))
+    id_card = AESCipher('d2%mxvbshq_vs#5h&9e_39iml4i#(uo&%@jfifokf&@$f*0c8-').encrypt(id_card)
 
     _account = Account.objects.create(
         username=data.get('username', '').strip(),

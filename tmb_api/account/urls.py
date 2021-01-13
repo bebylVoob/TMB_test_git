@@ -1,9 +1,12 @@
 from django.urls import path
+from rest_framework import routers
 
 from . import views
 from .views_login import LoginView
 from .views_register import RegisterView
 from .views_user import AccountView
+
+router = routers.DefaultRouter()
 
 urlpatterns = [
     path('', views.index, name='index'),

@@ -4,6 +4,13 @@ import hashlib
 from Crypto import Random
 from Crypto.Cipher import AES
 
+
+def gen_token(length):
+    import random
+    import string
+    return ''.join(random.choice(string.ascii_lowercase + string.ascii_uppercase + string.digits) for _ in range(32))
+
+
 SECRET_KEY = 'd2%mxvbshq_vs#5h&9e_39iml4i#(uo&%@jfifokf&@$f*0c8-'
 AUTH_USER_MODEL = 'account.Account'
 PASSWORD_MIN = 4
@@ -12,7 +19,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 class AESCipher(object):
 
-    def __init__(self, key):
+    def __init__(self, key): 
         self.bs = 32
         self.key = hashlib.sha256(key.encode()).digest()
 

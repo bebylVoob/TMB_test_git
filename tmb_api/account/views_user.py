@@ -1,39 +1,41 @@
 from account.models import Account
 from rest_framework import serializers
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import RetrieveAPIView, ListAPIView
 
-from tmb_test.TMB_test_git.tmb_api.account.response import Response
+from account.response import Response
 
 
 class AccountDetailSerializer(serializers.ModelSerializer):
-    id_card = serializers.SerializerMethodField()
+    type = serializers.SerializerMethodField()
 
     class Meta:
         model = Account
         fields = (
             'id',
             'code',
-            'email',
             'username',
             'title',
             'first_name',
             'middle_name',
             'last_name',
-            'id_card',
-            'phone',
             'date_joined',
             'is_active',
+            'type',
         )
 
-    def get_id_card(self, account):
-        return account.id_card_decrypt
+    def get_type(self, instance):
+        from account.models import MemberType
+        mt = MemberType.objects.filter(account_id=instance.id).first()
+        print(mt)
+        return mt.get_type_display()
 
 
-class AccountView(RetrieveAPIView):
+class AccountView(ListAPIView):
     queryset = Account.objects.order_by('-is_active', '-id').distinct()
     serializer_class = AccountDetailSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
+    def list(self, request, *args, **kwargs):
+        user_id = request.user.id
+        instance = Account.objects.get(id=user_id)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
