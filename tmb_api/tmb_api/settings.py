@@ -39,7 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'account'
+    'rest_framework_swagger',
+    'rest_framework',
+    'register_profile',
+    'account',
 ]
 
 MIDDLEWARE = [
@@ -52,22 +55,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'tmb_api.middleware.RequestMiddleware',
-    # 'tmb_api.middleware.LoggingMiddleware',
-
+    'tmb_api.middleware.RequestMiddleware',
+    'tmb_api.middleware.LoggingMiddleware',
     'django.middleware.security.SecurityMiddleware',
 ]
 
-SWAGGER_SETTINGS = {
-    'IS_ENABLE': True,
-    'SHOW_REQUEST_HEADERS': True,
-    'IS_SUPERUSER': True,
-    'VALIDATOR_URL': None,
-}
-
 ROOT_URLCONF = 'tmb_api.urls'
-
-WSGI_APPLICATION = 'conicle.wsgi.application'
+WSGI_APPLICATION = 'tmb_api.wsgi.application'
 
 TEMPLATES = [
     {
@@ -86,6 +80,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'tmb_api.wsgi.application'
+ASGI_APPLICATION = 'conicle.routing.application'
 
 
 # Database

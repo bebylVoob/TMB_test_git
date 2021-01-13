@@ -1,10 +1,6 @@
-import ast
-import uuid
-
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from rest_framework import serializers, status, viewsets
-from rest_framework.exceptions import ValidationError, NotFound
+from django.http import HttpResponse
+from rest_framework import serializers, viewsets
+from rest_framework.exceptions import ValidationError
 
 from .models import Account
 from .response import Response
@@ -22,10 +18,18 @@ class LoginSerializer(serializers.Serializer):
             return value
 
 
-class HomeView(LoginView):
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(LoginView, self).dispatch(*args, **kwargs)
+def log_in(request):
+    print(request)
+    return HttpResponse("Hello, world. You're at the polls index.")
+
+# class HomeView(LoginView):
+#     @method_decorator(login_required)
+#     def dispatch(self, *args, **kwargs):
+#         return super(LoginView, self).dispatch(*args, **kwargs)
+
+# register
+    # Login
+# get information
 
 
 class LoginView(viewsets.GenericViewSet):

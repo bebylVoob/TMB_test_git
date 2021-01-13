@@ -1,0 +1,286 @@
+{% include 'head.html' %}
+<body>
+    {% include 'base_link.html' %}
+
+    <div class="frame" style="margin: 0 20px">
+        <div class="transaction">
+            <p>Transaction ID : {{ transaction.id }}</p>
+            <p>Account : {{ transaction.account }}</p>
+            <p>Status label : {{ transaction.status_label }}</p>
+        </div>
+        <div class="progress_content"><h5 align="left">Progress {{ content_name }} list</h5>
+            <table class="table table-hover table-sm">
+                <thead>
+                <tr>
+                    <th scope="col">ID.</th>
+                    <th scope="col">{{ content_name|title }}</th>,
+                    {% if content_name == 'course' %}
+                         <th scope="col">Type</th>
+                    {% elif content_name == 'event' %}
+                        <th scope="col">Class program</th>
+                    {% elif content_name == 'survey' %}
+                        <th scope="col">Score</th>
+                    {% endif %}
+                    <th scope="col">Status</th>
+                    <th scope="col">percent</th>
+                </tr>
+                </thead>
+
+                {% if content_name == 'course' %}
+                    <tbody>
+                    {% for p in progress %}
+                        <tr>
+                            <th scope="col">{{ p.code }}</th>
+                            <th scope="col">{{ p.course }}</th>
+                            {% if p.course.is_coniclex %}
+                                {% if 'skilllane_' in p.course.external_id %}
+                                    <th scope="col">SkillLane</th>
+                                {% else %}
+                                    <th scope="col">ConicleX</th>
+                                {% endif %}
+                            {% else %}
+                                <th scope="col">Own</th>
+                            {% endif %}
+                            <th scope="col">{{ p.status_label }}</th>
+                            <th scope="col">{{ p.percent }}</th>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                {% elif content_name == 'event' %}
+                    <tbody>
+                     {% for p in progress %}
+                        <tr>
+                            <th scope="col">{{ p.id }}</th>
+                            <th scope="col">{{ p.event.name }}</th>
+                            <th scope="col">{{ p.event.event_program.name }}</th>
+                            <th scope="col">{{ p.status_label }}</th>
+                            <th scope="col">{{ p.percent }}</th>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                {% elif content_name == 'survey' %}
+                    <tbody>
+                     {% for p in progress %}
+                        <tr>
+                            <th scope="col">{{ p.id }}</th>
+                            <th scope="col">{{ p.survey.name }}</th>
+                            <th scope="col">{{ p.score }}</th>
+                            <th scope="col">{{ p.status_label }}</th>
+                            <th scope="col">{{ p.percent }}</th>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                {% endif %}
+            </table>
+        </div>
+
+        <div class="temizle"></div> {# Section block here #}
+        {% if content_name == 'course' %}
+            {% if bound_content %}
+                    <button type="button" class="collapsible">
+                            Bound Content (All section) : &nbsp&nbsp&nbsp&nbsp
+                    </button>
+                    <table border="3" class="content">
+                        <tbody>
+                            <tr>
+                                <th style="text-align:center"><p id="collapse">Content Type</p></th>
+                                <th style="text-align:center"><p id="collapse">Name</p></th>
+                                <th style="text-align:center"><p id="collapse">Display</p></th>
+                                <th style="text-align:center"><p id="collapse">Preview</p></th>
+                                <th style="text-align:center"><p id="collapse">Required</p></th>
+                                <th style="text-align:center"><p id="collapse">info</p></th>
+                            </tr>
+                            {% for slot in bound_content %}
+                                <tr>
+                                    <td><p id="collapse">{{ slot.content_type.code|title }}</p></td>
+                                    <td><p id="collapse">{{ slot.name }}</p></td>
+                                    <td><p id="collapse">{{ slot.is_display }}</p></td>
+                                    <td><p id="collapse">{{ slot.is_preview }}</p></td>
+                                    <td><p id="collapse">{% if slot.is_required %}Yes{% else %}No{% endif %}</p></td>
+                                    <td align="center"><a
+                                        class="btn btn-info"
+                                        href="{{ url }}&material_type_id={{ slot.content_type.id }}&material_id={{ slot.content.id }}&slot_id={{ slot.id }}&is_bound_content=1"
+                                        role="button">Info</a>
+                                    </td>
+                                </tr>
+                        </tbody>
+                            {% endfor %}
+                    </table>
+            {% endif %}
+            {% for key_course, value_course in sections.items %}
+                {% for value_section in value_course %}
+                    {% if value_section.count_slot > 0 %}
+                        <button type="button" class="collapsible">
+                            Section {{ forloop.counter }} : &nbsp&nbsp&nbsp&nbsp
+                            {{ value_section.name }} &nbsp&nbsp&nbsp&nbsp
+                        </button>
+                        <table border="3" class="content">
+                            <tbody>
+                            <tr>
+                                <th style="text-align:center"><p id="collapse">Content Type</p></th>
+                                <th style="text-align:center"><p id="collapse">Name</p></th>
+                                <th style="text-align:center"><p id="collapse">Display</p></th>
+                                <th style="text-align:center"><p id="collapse">Preview</p></th>
+                                <th style="text-align:center"><p id="collapse">Required</p></th>
+                                <th style="text-align:center"><p id="collapse">Duration</p></th>
+                                <th style="text-align:center"><p id="collapse">info</p></th>
+                            </tr>
+                            {% for slot in value_section.slot_list %}
+                                <tr>
+                                    <td><p id="collapse">{{ slot.content_type.code|title }}</p></td>
+                                    <td><p id="collapse">{{ slot.name }}</p></td>
+                                    <td><p id="collapse">{{ slot.is_display }}</p></td>
+                                    <td><p id="collapse">{{ slot.is_preview }}</p></td>
+                                    <td><p id="collapse">{% if slot.is_required %}Yes{% else %}No{% endif %}</p></td>
+                                    <td><p id="collapse">{% if slot.content.duration  %}{{ slot.content.duration }}{% else %}-{% endif %}</p></td>
+                                    <td align="center"><a
+                                        class="btn btn-info"
+                                        href="{{ url }}&material_type_id={{ slot.content_type.id }}&material_id={{ slot.content.id }}&slot_id={{ slot.id }}"
+                                        role="button">Info</a>
+                                    </td>
+                                    </tr>
+                                </tbody>
+                            {% endfor %}
+                        </table>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+
+        {% if content_name == 'event' %}
+            {% if bound_content %}
+                    <button type="button" class="collapsible">
+                            Bound Content (All section) : &nbsp&nbsp&nbsp&nbsp
+                    </button>
+                    <table border="3" class="content">
+                        <tbody>
+                        <tr>
+                            <th style="text-align:center"><p id="collapse">Content Type</p></th>
+                            <th style="text-align:center"><p id="collapse">Name</p></th>
+                            <th style="text-align:center"><p id="collapse">Display</p></th>
+                            <th style="text-align:center"><p id="collapse">Preview</p></th>
+                            <th style="text-align:center"><p id="collapse">Required</p></th>
+                            <th style="text-align:center"><p id="collapse">info</p></th>
+                        </tr>
+                        {% for slot in bound_content %}
+                            <tr>
+                                <td><p id="collapse">{{ slot.content_type.code|title }}</p></td>
+                                <td><p id="collapse">{{ slot.name }}</p></td>
+                                <td><p id="collapse">{{ slot.is_display }}</p></td>
+                                <td><p id="collapse">{{ slot.is_preview }}</p></td>
+                                <td><p id="collapse">{% if slot.is_required %}Yes{% else %}No{% endif %}</p></td>
+                                <td align="center"><a
+                                    class="btn btn-info"
+                                    href="{{ url }}&material_type_id={{ slot.content_type.id }}&material_id={{ slot.content.id }}&slot_id={{ slot.id }}&is_bound_content=1"
+                                    role="button">Info</a>
+                                </td>
+                                </tr>
+                            </tbody>
+                        {% endfor %}
+                    </table>
+            {% endif %}
+            {% for key_course, value_course in sections.items %}
+                {% for value_section in value_course %}
+                    {% if value_section.count_slot > 0 %}
+                        <button type="button" class="collapsible">
+                            Section {{ forloop.counter }} : &nbsp&nbsp&nbsp&nbsp
+                            {{ value_section.name }} &nbsp&nbsp&nbsp&nbsp
+                        </button>
+                        <table border="3" class="content">
+                            <tbody>
+                            <tr>
+                                <th style="text-align:center"><p id="collapse">Content Type</p></th>
+                                <th style="text-align:center"><p id="collapse">Name</p></th>
+                                <th style="text-align:center"><p id="collapse">Display</p></th>
+                                <th style="text-align:center"><p id="collapse">Preview</p></th>
+                                <th style="text-align:center"><p id="collapse">Required</p></th>
+                                <th style="text-align:center"><p id="collapse">info</p></th>
+                            </tr>
+                            {% for slot in value_section.slot_list %}
+                                <tr>
+                                    <td><p id="collapse">{{ slot.content_type.code|title }}</p></td>
+                                    <td><p id="collapse">{{ slot.name }}</p></td>
+                                    <td><p id="collapse">{{ slot.is_display }}</p></td>
+                                    <td><p id="collapse">{{ slot.is_preview }}</p></td>
+                                    <td><p id="collapse">{% if slot.is_required %}Yes{% else %}No{% endif %}</p></td>
+                                    <td align="center"><a
+                                        class="btn btn-info"
+                                        href="{{ url }}&material_type_id={{ slot.content_type.id }}&material_id={{ slot.content.id }}&slot_id={{ slot.id }}"
+                                        role="button">Info</a>
+                                    </td>
+                                    </tr>
+                                </tbody>
+                            {% endfor %}
+                        </table>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+        {% if content_name == 'survey' %}
+            <a class="btn btn-info" href="{{ url }}&go_to_material=1">Show Progress all</a><br><br>
+            {% for value_section in sections %}
+                <button type="button" class="collapsible">
+                    Section {{ forloop.counter }} : &nbsp&nbsp&nbsp&nbsp
+                    {{ value_section.name }} &nbsp&nbsp&nbsp&nbsp
+                    Count Question: {{ value_section.count_question }} &nbsp&nbsp&nbsp&nbsp
+                    Score: {{ value_section.score }} &nbsp&nbsp&nbsp&nbsp
+                    Create: {{ value_section.datetime_create }} &nbsp&nbsp&nbsp&nbsp
+                    Update: {{ value_section.datetime_update }} &nbsp&nbsp&nbsp&nbsp
+                </button>
+                <table border="3" class="content">
+                    <tbody>
+                    <tr>
+                        <th style="text-align:center"><p id="collapse">Name</p></th>
+                        <th style="text-align:center"><p id="collapse">Description</p></th>
+                        <th style="text-align:center"><p id="collapse">Type</p></th>
+                        <th style="text-align:center"><p id="collapse">Score</p></th>
+                        <th style="text-align:center"><p id="collapse">Require</p></th>
+                        <th style="text-align:center"><p id="collapse">Datetime Create</p></th>
+                        <th style="text-align:center"><p id="collapse">Datetime Update</p></th>
+                        <th style="text-align:center"><p id="collapse">Info</p></th>
+                    </tr>
+                    {% for question in value_section.get_question_list %}
+                        <tr>
+                            <td><p id="collapse">{{ question.name }}</p></td>
+                            <td><p id="collapse">{{ question.desc }}</p></td>
+                            <td><p id="collapse">{{ question.get_type_label }}</p></td>
+                            <td><p id="collapse">{{ question.Score }}</p></td>
+                            <td><p id="collapse">{% if question.is_optional %}No{% else %}Yes{% endif %}</p></td>
+                            <td><p id="collapse">{{ question.datetime_create }}</p></td>
+                            <td><p id="collapse">{{ question.datetime_update }}</p></td>
+
+                            <td align="center"><a
+                                class="btn btn-info"
+                                href="{{ url }}&material_type_id={{ slot.content_type.id }}&material_id={{ slot.content.id }}&slot_id={{ slot.id }}"
+                                role="button">Info</a>
+                            </td>
+                            </tr>
+                        </tbody>
+                    {% endfor %}
+                </table>
+            {% endfor %}
+
+
+        {% endif %}
+    </div>
+</body>
+
+{% block script %}
+<script>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+      coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.display === "table") {
+          content.style.display = "none";
+        } else {
+          content.style.display = "table";
+        }
+      });
+    }
+
+</script>
+{% endblock %}

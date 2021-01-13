@@ -10,6 +10,36 @@ from django.utils.translation import ugettext_lazy as _
 from .encryption import AESCipher, SECRET_KEY, AUTH_USER_MODEL, SESSION_ENGINE
 
 
+from django.db import models
+from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
+
+
+class AccountManager(BaseUserManager):
+
+    def create_user(self, username, password):
+        if username is None:
+            raise ValueError('The given username must be set')
+
+        user = self.model(
+            username=username
+        )
+
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, username, password, is_accepted_active_consent=True):
+        """
+        Creates and saves a superuser with the given email, date of
+        birth and password.
+        """
+
+        user = self.create_user(username, password)
+        user.is_admin = True
+        user.save(using=self._db)
+        return user
+
+
 class Account(AbstractBaseUser, PermissionsMixin):
     username_validator = UnicodeUsernameValidator() if six.PY3 else ASCIIUsernameValidator()
     USERNAME_FIELD = 'username'
@@ -31,7 +61,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         null=True,
         blank=True
     )
-    code = models.CharField(max_length=32, db_index=True, default=None)
+    code = models.CharField(max_length=32, db_index=True, blank=True, null=True, default=None)
     title = models.CharField(max_length=64, blank=True)
     first_name = models.CharField(max_length=120, db_index=True, blank=True)
     middle_name = models.CharField(max_length=120, db_index=True, blank=True)
@@ -46,6 +76,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     datetime_create = models.DateTimeField(auto_now_add=True, db_index=True)
     datetime_update = models.DateTimeField(auto_now=True, db_index=True)
+
+    objects = AccountManager()
+
+    USERNAME_FIELD = 'username'
+
+    class Meta:
+        ordering = ['-is_active', '-id']
 
     @property
     def id_card_decrypt(self):
@@ -79,6 +116,10 @@ class Session(models.Model):
     session_key = models.CharField(max_length=255, db_index=True)
     token = models.TextField(null=True, blank=True)
     datetime_create = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        default_permissions = ()
+        ordering = ['-datetime_create']
 
     @staticmethod
     def push(account, session_key, token=None):

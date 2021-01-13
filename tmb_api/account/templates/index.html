@@ -1,0 +1,39 @@
+<head>
+    <title>TMB Access</title>
+    {% include 'head.html' %}
+</head>
+<body>
+{% if not account %}
+    <div class="box">
+      <form action="/admin/login/">
+        <input type="submit" value="Login" />
+      </form>
+    </div>
+    <div class="box">
+      <form action="/account/register/" method="post">
+        <input type="submit" value="Register"/>
+      </form>
+    </div>
+{% else %}
+    <div class="box">
+      <form action="/account/user-info/">
+        <input type="submit" value="user-info" />
+      </form>
+    </div>
+{% endif %}
+</body>
+
+{% block script %}
+    <script type="text/javascript">
+    var apiUrl = '/account/register';
+    fetch(apiUrl).then(response => {
+      return response.json();
+    }).then(data => {
+      // Work with JSON data here
+      console.log(data);
+    }).catch(err => {
+      // Do something for an error here
+        console.log('something wrong')
+    });
+</script>
+{% endblock%}
